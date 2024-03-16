@@ -4,7 +4,9 @@
         "local_server":"True",
         "local_uri":"mysql://root:@localhost/flaskblog",
         "prod_uri":"mysql://root:@localhost/flaskblog",
-        "blog_name":"Clean Blog"
+        "blog_name":"Clean Blog",
+        "gmail-user":"yashsewarik1@gmail.com",
+        "gmail-password":"oqjqyspnbvhiymju"
 
     }
 
