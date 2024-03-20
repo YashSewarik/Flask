@@ -1,4 +1,4 @@
-from flask import Flask, render_template , request, session
+from flask import Flask, render_template , request, session,redirect
 from flask_sqlalchemy import SQLAlchemy
 from flask_mail import Mail
 from datetime import datetime
@@ -42,7 +42,7 @@ class Posts(db.Model):
     tagline=db.Column(db.String(120),nullable=False)
     content = db.Column(db.String(120), nullable=False)
     date = db.Column(db.String(12), nullable=True)
-    img_file=db.Column(db.String(12),nullable=True)
+
 
 
 @app.route("/")
@@ -83,6 +83,37 @@ def post_route(post_slug):
     return render_template('post.html',params=params,post=post)
 
 
+
+
+@app.route("/edit/<string:sno>",methods=['GET','POST'])
+def edit(sno):
+    if "user" in session and session['user'] == params['admin_user']:
+        if request.method == "POST":
+            box_title = request.form.get('title')
+            tline = request.form.get('tline')
+            slug = request.form.get('slug')
+            content = request.form.get('content')
+            date = datetime.now()
+
+            if sno=='0':
+                post = Posts(title=box_title, slug=slug, content=content, tagline=tline, date=date)
+                
+                db.session.add(post)
+                db.session.commit()
+            
+            else:
+                post = Posts.query.filter_by(sno=sno).first()
+                post.title = box_title
+                post.tagline = tline
+                post.slug = slug
+                post.content = content
+                post.date = date
+                db.session.commit()
+                return redirect('/edit/'+sno)
+        post = Posts.query.filter_by(sno=sno).first()
+        return render_template('edit.html',params=params,post=post,sno=sno)
+            
+
 @app.route("/contact",methods = ['GET','POST'])
 def contact():
     if (request.method=='POST'):
@@ -102,5 +133,10 @@ def contact():
                           )
 
     return render_template('contact.html',params=params)
+
+@app.route('/logout')
+def logout():
+    session.pop('user')
+    return redirect('/dashboard')
 
 app.run(debug=True)
